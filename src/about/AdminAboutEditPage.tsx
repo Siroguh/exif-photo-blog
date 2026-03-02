@@ -3,7 +3,7 @@
 import { PATH_ABOUT } from '@/app/path';
 import LinkWithStatus from '@/components/LinkWithStatus';
 import { useState } from 'react';
-import { About, AboutInsert, getDescriptionWithFallback } from '.';
+import { About, AboutInsert } from '.';
 import FieldsetWithStatus from '@/components/FieldsetWithStatus';
 import AdminChildPage from '@/components/AdminChildPage';
 import { updateAboutAction } from './actions';
@@ -11,6 +11,7 @@ import SubmitButtonWithStatus from '@/components/SubmitButtonWithStatus';
 import { Photo } from '@/photo';
 import { useAppText } from '@/i18n/state/client';
 import FieldsetPhotoChooser from '@/photo/form/FieldsetPhotoChooser';
+import { ABOUT_DESCRIPTION_DEFAULT } from '@/app/config';
 
 export default function AdminAboutEditPage({
   about,
@@ -72,7 +73,7 @@ export default function AdminAboutEditPage({
             label="Description"
             type="textarea"
             value={aboutForm?.description ?? ''}
-            placeholder={getDescriptionWithFallback(about)}
+            placeholder={ABOUT_DESCRIPTION_DEFAULT}
             onChange={description => setAboutForm(form =>
               ({ ...form, description }))}
           />

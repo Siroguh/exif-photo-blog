@@ -1,7 +1,6 @@
-import { getDescriptionWithFallback } from '@/about';
 import AboutPageClient from '@/about/AboutPageClient';
 import { getAboutDataCached } from '@/about/data';
-import { SHOW_ABOUT_PAGE } from '@/app/config';
+import { ABOUT_DESCRIPTION_DEFAULT, SHOW_ABOUT_PAGE } from '@/app/config';
 import { PATH_ROOT } from '@/app/path';
 import { getDataForCategoriesCached } from '@/category/cache';
 import {
@@ -42,7 +41,7 @@ export default async function AboutPage() {
     getDataForCategoriesCached().catch(() => (NULL_CATEGORY_DATA)),
   ]);
 
-  const description = getDescriptionWithFallback(about);
+  const description = about?.description || ABOUT_DESCRIPTION_DEFAULT;
 
   const descriptionHtml = description
     ? <div
