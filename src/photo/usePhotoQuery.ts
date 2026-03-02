@@ -28,6 +28,11 @@ export default function usePhotoQuery({
 
   const [photos, setPhotos] = useState<Photo[]>([]);
 
+  const resultsNotFound =
+    queryDebounced.length >= minimumQueryLength &&
+    !isLoading &&
+    photos.length === 0;
+
   const reset = useCallback(() => {
     setPhotos([]);
     setIsLoading(false);
@@ -62,6 +67,7 @@ export default function usePhotoQuery({
     queryFormatted,
     photos,
     isLoading,
+    resultsNotFound,
     reset,
   };
 }

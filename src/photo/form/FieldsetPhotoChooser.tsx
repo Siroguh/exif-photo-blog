@@ -9,17 +9,16 @@ import {
 import clsx from 'clsx/lite';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import ImageMedium from '@/components/image/ImageMedium';
-import { menuSurfaceStyles } from '@/components/primitives/surface';
+import { MENU_SURFACE_STYLES } from '@/components/primitives/surface';
 import { IoSearch } from 'react-icons/io5';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import usePhotoQuery from '../usePhotoQuery';
-import { BiChevronDown } from 'react-icons/bi';
+import { BiChevronRight } from 'react-icons/bi';
 import SegmentMenu from '@/components/SegmentMenu';
 import IconFavs from '@/components/icons/IconFavs';
 import InfinitePhotoScroll from '../InfinitePhotoScroll';
-
-// TODO:
-// Create empty state for all modes, including no search results
+import AdminEmptyState from '@/admin/AdminEmptyState';
+import { TbPhotoSearch } from 'react-icons/tb';
 
 type Mode = 'all' | 'favs' | 'search';
 
@@ -66,6 +65,7 @@ export default function FieldsetPhotoChooser({
     photos: photosQuery,
     isLoading: isLoadingPhotoQuery,
     reset: resetPhotoQuery,
+    resultsNotFound,
   } = usePhotoQuery({ query, isPrivate: true });
 
   const reset = useCallback((resetMenu?: boolean) => {
@@ -125,11 +125,18 @@ export default function FieldsetPhotoChooser({
               'font-sans',
               'text-xs text-medium font-medium uppercase tracking-wider',
               'py-1',
+              'select-none',
             )}>
               <span className="grow truncate text-left">
                 {label}
               </span>
-              <BiChevronDown size={18} />
+              <BiChevronRight
+                size={18}
+                className={clsx(
+                  'transition-transform ',
+                  isOpen && 'rotate-90',
+                )}
+              />
             </span>
             <span className={clsx(
               'flex size-[6rem]',
@@ -144,8 +151,11 @@ export default function FieldsetPhotoChooser({
           <DropdownMenu.Content
             onCloseAutoFocus={e => e.preventDefault()}
             align="start"
-            sideOffset={10}
-            className={menuSurfaceStyles('z-20 rounded-2xl pb-0 overflow-auto')}
+            sideOffset={-80}
+            className={clsx(
+              MENU_SURFACE_STYLES,
+              'z-20 rounded-2xl pb-0 overflow-auto',
+            )}
           >
             <SegmentMenu
               className="pt-1 pb-2 px-1.5"
@@ -169,25 +179,45 @@ export default function FieldsetPhotoChooser({
               }}
             />
             <div className={clsx(
-              'flex items-center transition-all overflow-hidden',
-              showQuery ? 'h-12 opacity-100' : 'h-0 opacity-0',
-            )}>
-              <div className="p-1 border-t border-medium w-full">
-                <input
-                  id="query"
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Search for a photo"
-                  className="block w-full m-0 border-none outline-none"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className={clsx(
-              'w-[18rem] max-h-[20rem] overflow-y-auto',
+              'w-[18rem] h-[20rem] overflow-y-auto',
               'space-y-0.5',
             )}>
+              <div className={clsx(
+                'flex items-center transition-all overflow-hidden',
+                showQuery ? 'h-12 opacity-100' : 'h-0 opacity-0',
+              )}>
+                <div className="w-full px-1.5">
+                  <input
+                    id="query"
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Search for a photo"
+                    className={clsx(
+                      'block w-full m-0 outline-none',
+                      'rounded-full border border-dim',
+                      'mb-2',
+                    )}
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+              {showQuery && resultsNotFound &&
+                <AdminEmptyState
+                  icon={<IoSearch className="text-dim" />}
+                  className="translate-y-8"
+                  includeContainer={false}
+                >
+                  No photos found
+                </AdminEmptyState>}
+              {!showQuery && photosToShow.length === 0 &&
+                <AdminEmptyState
+                  icon={<TbPhotoSearch className="text-dim" />}
+                  className="translate-y-16"
+                  includeContainer={false}
+                >
+                  No photos
+                </AdminEmptyState>}
               <div className={CLASSNAME_GRID}>
                 {photosToShow.map(photo => renderPhotoButton(photo))}
               </div>

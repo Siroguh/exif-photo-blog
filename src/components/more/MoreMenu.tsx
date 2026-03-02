@@ -11,7 +11,7 @@ import { FiMoreHorizontal } from 'react-icons/fi';
 import MoreMenuItem from './MoreMenuItem';
 import { clearGlobalFocus } from '@/utility/dom';
 import { FaChevronRight } from 'react-icons/fa6';
-import { menuSurfaceStyles } from '../primitives/surface';
+import { MENU_SURFACE_STYLES } from '../primitives/surface';
 
 export type MoreMenuSection = {
   label?: string
@@ -101,7 +101,10 @@ export default function MoreMenu({
           onCloseAutoFocus={e => e.preventDefault()}
           align={align}
           sideOffset={sideOffset}
-          className={menuSurfaceStyles(className)}
+          className={clsx(
+            MENU_SURFACE_STYLES,
+            className,
+          )}
         >
           {header && <div className={clsx(
             'px-3 pt-3 pb-2 text-dim uppercase',
@@ -157,7 +160,7 @@ export default function MoreMenu({
                       </DropdownMenu.SubTrigger>
                       <DropdownMenu.Portal>
                         <DropdownMenu.SubContent
-                          className={menuSurfaceStyles()}
+                          className={MENU_SURFACE_STYLES}
                         >
                           {item.items.map(item =>
                             <div key={item.label} className="px-1">

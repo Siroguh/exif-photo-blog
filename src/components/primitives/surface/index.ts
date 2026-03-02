@@ -1,6 +1,6 @@
 import clsx from 'clsx/lite';
 
-export const menuSurfaceStyles = (className?: string) => clsx(
+export const MENU_SURFACE_STYLES = clsx(
   'z-10',
   'min-w-[8rem]',
   'component-surface',
@@ -12,5 +12,4 @@ export const menuSurfaceStyles = (className?: string) => clsx(
   'data-[side=top]:animate-fade-in-from-bottom',
   'data-[side=bottom]:animate-fade-in-from-top',
   'data-[side=right]:animate-fade-in-from-top',
-  className,
 );
