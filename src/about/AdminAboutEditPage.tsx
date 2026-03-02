@@ -9,17 +9,13 @@ import AdminChildPage from '@/components/AdminChildPage';
 import { updateAboutAction } from './actions';
 import SubmitButtonWithStatus from '@/components/SubmitButtonWithStatus';
 import { Photo } from '@/photo';
-import PhotoAvatar from '@/photo/PhotoAvatar';
-import PhotoMedium from '@/photo/PhotoMedium';
-import clsx from 'clsx/lite';
-import useDynamicPhoto from '@/photo/useDynamicPhoto';
 import { useAppText } from '@/i18n/state/client';
 import FieldsetPhotoChooser from '@/photo/form/FieldsetPhotoChooser';
 
 export default function AdminAboutEditPage({
   about,
-  photoAvatar: _photoAvatar,
-  photoHero: _photoHero,
+  photoAvatar,
+  photoHero,
   photos,
   photosCount,
   photosFavs,
@@ -36,22 +32,6 @@ export default function AdminAboutEditPage({
 
   const [aboutForm, setAboutForm] = useState<Partial<AboutInsert>>(about ?? {});
 
-  const {
-    photo: photoAvatar,
-    isLoading: isLoadingPhotoAvatar,
-  } = useDynamicPhoto({
-    initialPhoto: _photoAvatar,
-    photoId: aboutForm?.photoIdAvatar,
-  });
-
-  const {
-    photo: photoHero,
-    isLoading: isLoadingPhotoHero,
-  } = useDynamicPhoto({
-    initialPhoto: _photoHero,
-    photoId: aboutForm?.photoIdHero,
-  });
-
   const convertUrlToPhotoId = (url?: string) => url?.split('/').pop();
 
   return (
@@ -66,7 +46,8 @@ export default function AdminAboutEditPage({
       >
         <div className="space-y-4">
           <FieldsetPhotoChooser
-            label="Avatar Photo"
+            id="photoIdAvatar"
+            label="Avatar"
             value={aboutForm?.photoIdAvatar ?? ''}
             onChange={photoIdAvatar => setAboutForm(form =>
               ({ ...form, photoIdAvatar }))}
@@ -74,16 +55,6 @@ export default function AdminAboutEditPage({
             photos={photos}
             photosCount={photosCount}
             photosFavs={photosFavs}
-          />
-          <PhotoAvatar photo={photoAvatar} />
-          <FieldsetWithStatus
-            id="photoIdAvatar"
-            label="Avatar Photo Id"
-            spellCheck={false}
-            value={aboutForm?.photoIdAvatar ?? ''}
-            onChange={photoIdAvatar => setAboutForm(form =>
-              ({ ...form, photoIdAvatar: convertUrlToPhotoId(photoIdAvatar) }))}
-            loading={isLoadingPhotoAvatar}
           />
           <FieldsetWithStatus
             label="Title"
@@ -106,22 +77,17 @@ export default function AdminAboutEditPage({
             onChange={description => setAboutForm(form =>
               ({ ...form, description }))}
           />
-          <FieldsetWithStatus
+          <FieldsetPhotoChooser
             id="photoIdHero"
-            label="Hero Photo Id"
-            spellCheck={false}
+            label="Hero"
             value={aboutForm?.photoIdHero ?? ''}
             onChange={photoIdHero => setAboutForm(form =>
               ({ ...form, photoIdHero: convertUrlToPhotoId(photoIdHero) }))}
-            loading={isLoadingPhotoHero}
+            photo={photoHero}
+            photos={photos}
+            photosCount={photosCount}
+            photosFavs={photosFavs}
           />
-          {photoHero &&
-            <div className={clsx(
-              'w-24 overflow-hidden rounded-md',
-              'border border-medium bg-dim',
-            )}>
-              <PhotoMedium photo={photoHero} />
-            </div>}
         </div>
         <div className="flex gap-2">
           <LinkWithStatus

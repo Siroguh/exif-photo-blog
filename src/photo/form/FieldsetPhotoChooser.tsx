@@ -11,7 +11,13 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import ImageMedium from '@/components/image/ImageMedium';
 import { MENU_SURFACE_STYLES } from '@/components/primitives/surface';
 import { IoSearch } from 'react-icons/io5';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import usePhotoQuery from '../usePhotoQuery';
 import { BiChevronRight } from 'react-icons/bi';
 import SegmentMenu from '@/components/SegmentMenu';
@@ -19,6 +25,7 @@ import IconFavs from '@/components/icons/IconFavs';
 import InfinitePhotoScroll from '../InfinitePhotoScroll';
 import AdminEmptyState from '@/admin/AdminEmptyState';
 import { TbPhotoSearch } from 'react-icons/tb';
+import { MdOutlineNoPhotography } from 'react-icons/md';
 
 type Mode = 'all' | 'favs' | 'search';
 
@@ -34,22 +41,17 @@ const renderPhoto = (photo: Photo) =>
   />;
 
 export default function FieldsetPhotoChooser({
-  label,
-  value,
-  onChange,
   photo: _photo,
   photos = [],
   photosCount,
   photosFavs,
+  ...props
 }: {
-  label: string
-  value: string
-  onChange: (photoId: string) => void
   photo?: Photo
   photos: Photo[]
   photosCount: number
   photosFavs: Photo[]
-}) {
+} & ComponentProps<typeof FieldsetWithStatus>) {
   const [isOpen, setIsOpen] = useState(false);
 
   const [photo, setPhoto] = useState(_photo);
@@ -58,7 +60,8 @@ export default function FieldsetPhotoChooser({
 
   const showQuery = mode === 'search';
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const refContainer = useRef<HTMLDivElement>(null);
+  const refInput = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');
   const {
@@ -73,11 +76,6 @@ export default function FieldsetPhotoChooser({
     setQuery('');
     if (resetMenu) { setMode('all'); }
   }, [resetPhotoQuery]);
-
-  // Focus input on query mode
-  useEffect(() => {
-    if (showQuery) { inputRef.current?.focus(); }
-  }, [showQuery]);
 
   // Reset menu when closed
   useEffect(() => {
@@ -94,7 +92,7 @@ export default function FieldsetPhotoChooser({
       )}
       onClick={() => {
         setPhoto(photo);
-        onChange(photo.id);
+        props.onChange?.(photo.id);
         setIsOpen(false);
       }}
     >
@@ -113,7 +111,7 @@ export default function FieldsetPhotoChooser({
 
   return (
     <>
-      <FieldsetWithStatus {...{ label, value, onChange, type: 'hidden' }} />
+      <FieldsetWithStatus {...props} type="hidden" />
       <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenu.Trigger asChild>
           <button type="button" className={clsx(
@@ -128,11 +126,12 @@ export default function FieldsetPhotoChooser({
               'select-none',
             )}>
               <span className="grow truncate text-left">
-                {label}
+                {props.label}
               </span>
               <BiChevronRight
                 size={18}
                 className={clsx(
+                  'text-dim',
                   'transition-transform ',
                   isOpen && 'rotate-90',
                 )}
@@ -142,8 +141,16 @@ export default function FieldsetPhotoChooser({
               'flex size-[6rem]',
               'border border-medium rounded-[4px]',
               'overflow-hidden select-none active:opacity-75',
+              'bg-extra-dim',
             )}>
-              {photo && renderPhoto(photo)}
+              {photo
+                ? renderPhoto(photo)
+                : <div className="flex items-center justify-center w-full">
+                  <MdOutlineNoPhotography
+                    size={24}
+                    className="text-dim"
+                  />
+                </div>}
             </span>
           </button>
         </DropdownMenu.Trigger>
@@ -175,13 +182,19 @@ export default function FieldsetPhotoChooser({
                 setMode(mode);
                 if (mode !== 'search') {
                   reset();
+                } else {
+                  refContainer.current?.scrollTo({ top: 0 });
+                  refInput.current?.focus();
                 }
               }}
             />
-            <div className={clsx(
-              'w-[18rem] h-[20rem] overflow-y-auto',
-              'space-y-0.5',
-            )}>
+            <div
+              ref={refContainer}
+              className={clsx(
+                'w-[18rem] h-[20rem] overflow-y-auto',
+                'space-y-0.5',
+              )}
+            >
               <div className={clsx(
                 'flex items-center transition-all overflow-hidden',
                 showQuery ? 'h-12 opacity-100' : 'h-0 opacity-0',
@@ -189,7 +202,7 @@ export default function FieldsetPhotoChooser({
                 <div className="w-full px-1.5">
                   <input
                     id="query"
-                    ref={inputRef}
+                    ref={refInput}
                     type="text"
                     placeholder="Search for a photo"
                     className={clsx(
