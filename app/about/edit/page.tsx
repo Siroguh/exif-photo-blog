@@ -1,12 +1,11 @@
 import AdminAboutEditPage from '@/about/AdminAboutEditPage';
-import { getAbout } from '@/about/query';
+import { getAboutData } from '@/about/data';
 import { PRESERVE_ORIGINAL_UPLOADS } from '@/app/config';
 import { feedQueryOptions } from '@/feed';
 import {
   getPhotosCached,
   getPhotosMetaCached,
 } from '@/photo/cache';
-import { getPhoto } from '@/photo/query';
 import { TAG_FAVS } from '@/tag';
 
 const PHOTO_CHOOSER_QUERY_OPTIONS = feedQueryOptions({
@@ -25,24 +24,7 @@ export default async function AboutEditPage() {
     photosCount,
     photosFavs,
   ] = await Promise.all([
-    getAbout()
-      .then(async about => {
-        const photoAvatar = about?.photoIdAvatar
-          ? await getPhoto(about?.photoIdAvatar ?? '', true)
-            .catch(() => undefined)
-          : undefined;
-
-        const photoHero = about?.photoIdHero
-          ? await getPhoto(about?.photoIdHero ?? '', true)
-            .catch(() => undefined)
-          : undefined;
-
-        return {
-          about,
-          photoAvatar,
-          photoHero,
-        };
-      })
+    getAboutData()
       .catch(() => ({
         about: undefined,
         photoAvatar: undefined,

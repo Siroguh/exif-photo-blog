@@ -3,7 +3,7 @@
 import { PATH_ABOUT } from '@/app/path';
 import LinkWithStatus from '@/components/LinkWithStatus';
 import { useState } from 'react';
-import { About, AboutInsert } from '.';
+import { About, AboutInsert, getDescriptionWithFallback } from '.';
 import FieldsetWithStatus from '@/components/FieldsetWithStatus';
 import AdminChildPage from '@/components/AdminChildPage';
 import { updateAboutAction } from './actions';
@@ -32,8 +32,6 @@ export default function AdminAboutEditPage({
 
   const [aboutForm, setAboutForm] = useState<Partial<AboutInsert>>(about ?? {});
 
-  const convertUrlToPhotoId = (url?: string) => url?.split('/').pop();
-
   return (
     <AdminChildPage
       backPath={PATH_ABOUT}
@@ -48,7 +46,7 @@ export default function AdminAboutEditPage({
           <FieldsetPhotoChooser
             id="photoIdAvatar"
             label="Avatar"
-            value={aboutForm?.photoIdAvatar ?? ''}
+            value={aboutForm?.photoIdAvatar || photoAvatar?.id || ''}
             onChange={photoIdAvatar => setAboutForm(form =>
               ({ ...form, photoIdAvatar }))}
             photo={photoAvatar}
@@ -74,15 +72,16 @@ export default function AdminAboutEditPage({
             label="Description"
             type="textarea"
             value={aboutForm?.description ?? ''}
+            placeholder={getDescriptionWithFallback(about)}
             onChange={description => setAboutForm(form =>
               ({ ...form, description }))}
           />
           <FieldsetPhotoChooser
             id="photoIdHero"
             label="Hero"
-            value={aboutForm?.photoIdHero ?? ''}
+            value={aboutForm?.photoIdHero || photoHero?.id || ''}
             onChange={photoIdHero => setAboutForm(form =>
-              ({ ...form, photoIdHero: convertUrlToPhotoId(photoIdHero) }))}
+              ({ ...form, photoIdHero }))}
             photo={photoHero}
             photos={photos}
             photosCount={photosCount}

@@ -1,5 +1,6 @@
+import { getDescriptionWithFallback } from '@/about';
 import AboutPageClient from '@/about/AboutPageClient';
-import { getAboutCached } from '@/about/cache';
+import { getAboutDataCached } from '@/about/data';
 import { SHOW_ABOUT_PAGE } from '@/app/config';
 import { PATH_ROOT } from '@/app/path';
 import { getDataForCategoriesCached } from '@/category/cache';
@@ -7,11 +8,7 @@ import {
   getLastModifiedForCategories,
   NULL_CATEGORY_DATA,
 } from '@/category/data';
-import {
-  getPhotoCached,
-  getPhotosCached,
-  getPhotosMetaCached,
-} from '@/photo/cache';
+import { getPhotosMetaCached } from '@/photo/cache';
 import PhotosEmptyState from '@/photo/PhotosEmptyState';
 import { getAllPhotoIdsWithUpdatedAt } from '@/photo/query';
 import { TAG_FAVS } from '@/tag';
@@ -34,26 +31,8 @@ export default async function AboutPage() {
     photos,
     categories,
   ] = await Promise.all([
-    getAboutCached()
-      .then(async about => {
-        const photoAvatar = await (about?.photoIdAvatar
-          ? getPhotoCached(about?.photoIdAvatar ?? '', true)
-          : undefined);
-        const photoHero = await (about?.photoIdHero
-          ? getPhotoCached(about?.photoIdHero ?? '', true)
-          // Fall back to favorite photos if no hero photo is set
-          : getPhotosCached({ tag: TAG_FAVS, limit: 1 })
-            .then(photos => photos.length > 0
-              ? photos[0]
-              // Fall back to oldest photo if no favorite photos exist
-              : getPhotosCached({ limit: 1, sortBy: 'takenAtAsc' })
-                .then(photos => photos[0])));
-        return {
-          about,
-          photoAvatar,
-          photoHero,
-        };
-      }).catch(() => ({
+    getAboutDataCached()
+      .catch(() => ({
         about: undefined,
         photoAvatar: undefined,
         photoHero: undefined,
@@ -63,10 +42,15 @@ export default async function AboutPage() {
     getDataForCategoriesCached().catch(() => (NULL_CATEGORY_DATA)),
   ]);
 
-  const description = about?.description
-    ? <div dangerouslySetInnerHTML={{
-      __html: safelyParseFormattedHtml(about.description),
-    }} />
+  const description = getDescriptionWithFallback(about);
+
+  const descriptionHtml = description
+    ? <div
+      className="text-medium [&>*>a]:underline"
+      dangerouslySetInnerHTML={{
+        __html: safelyParseFormattedHtml(description),
+      }}
+    />
     : undefined;
 
   const {
@@ -88,7 +72,7 @@ export default async function AboutPage() {
       ? <AboutPageClient
         title={about?.title}
         subhead={about?.subhead}
-        description={description}
+        descriptionHtml={descriptionHtml}
         photosCount={photosMeta?.count}
         photosOldest={photosMeta?.dateRange?.start}
         photoAvatar={photoAvatar}
