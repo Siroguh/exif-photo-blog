@@ -1,4 +1,4 @@
-import { META_DESCRIPTION, SIDEBAR_TEXT } from '@/app/config';
+import { ABOUT_DESCRIPTION_DEFAULT } from '@/app/config';
 
 export interface AboutInsert {
   id: number
@@ -16,5 +16,4 @@ export interface About extends AboutInsert {
 
 export const getDescriptionWithFallback = (about?: About) =>
   about?.description ||
-  META_DESCRIPTION ||
-  SIDEBAR_TEXT;
+  ABOUT_DESCRIPTION_DEFAULT;
